@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResumeForge AI - 智能简历定制</title>
+  <meta name="description" content="粘贴职位描述+你的简历，AI秒级生成定制简历，ATS优化，求职通过率翻倍。">
+  <meta property="og:title" content="ResumeForge AI - 智能简历定制">
+  <meta property="og:description" content="AI秒级生成针对JD定制的简历，ATS优化，求职通过率翻倍。">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --surface: #141416;
+      --surface2: #1c1c1f;
+      --border: #2a2a2e;
+      --text: #e8e8ed;
+      --text-dim: #8e8e96;
+      --accent: #6c5ce7;
+      --accent-light: #a29bfe;
+      --success: #00b894;
+      --warning: #fdcb6e;
+      --error: #e17055;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10, 10, 11, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    nav .inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 20px; font-weight: 700; color: var(--text); text-decoration: none;
+    }
+    .logo span { font-size: 24px; }
+    .logo small { font-size: 12px; font-weight: 400; color: var(--accent-light); margin-left: 4px; }
+    .nav-actions { display: flex; gap: 12px; align-items: center; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; text-decoration: none;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: #5a4bd6; transform: translateY(-1px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border); }
+    .btn-large { padding: 14px 32px; font-size: 16px; border-radius: 10px; }
+    main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .hero { text-align: center; padding: 60px 0 40px; }
+    .hero h1 {
+      font-size: 48px; font-weight: 800;
+      background: linear-gradient(135deg, var(--text), var(--accent-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+    .hero p { font-size: 18px; color: var(--text-dim); max-width: 600px; margin: 0 auto 32px; }
+    .hero .stats { display: flex; justify-content: center; gap: 48px; margin-top: 32px; }
+    .hero .stat { text-align: center; }
+    .hero .stat .num { font-size: 28px; font-weight: 700; color: var(--accent-light); }
+    .hero .stat .label { font-size: 13px; color: var(--text-dim); }
+    .workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 40px; }
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+    }
+    .panel-header h3 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .panel-header .badge {
+      font-size: 11px; padding: 2px 8px; border-radius: 20px;
+      background: var(--accent); color: white; font-weight: 600;
+    }
+    .panel-body { padding: 20px; }
+    textarea {
+      width: 100%; min-height: 300px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px; padding: 16px; resize: vertical; line-height: 1.7;
+      transition: border-color 0.2s;
+    }
+    textarea:focus { outline: none; border-color: var(--accent); }
+    textarea::placeholder { color: var(--text-dim); }
+    .action-bar { display: flex; justify-content: center; gap: 16px; margin-top: 24px; padding: 24px 0; }
+    .loading { display: none; text-align: center; padding: 40px; }
+    .loading.active { display: block; }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 3px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading p { color: var(--text-dim); font-size: 14px; }
+    .result-area { display: none; margin-top: 32px; }
+    .result-area.active { display: block; }
+    .result-toolbar {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+    }
+    .result-toolbar h3 { font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .result-content {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px; line-height: 1.8;
+      font-size: 15px; white-space: pre-wrap; word-wrap: break-word;
+    }
+    .pricing {
+      margin-top: 80px; text-align: center; padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+    .pricing h2 { font-size: 32px; margin-bottom: 16px; }
+    .pricing p { color: var(--text-dim); margin-bottom: 40px; }
+    .pricing-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 20px; max-width: 900px; margin: 0 auto;
+    }
+    .pricing-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px 24px;
+      text-align: center; transition: all 0.2s;
+    }
+    .pricing-card:hover { border-color: var(--accent); transform: translateY(-4px); }
+    .pricing-card.featured {
+      border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(108,92,231,0.1), var(--surface));
+    }
+    .pricing-card h4 { font-size: 18px; margin-bottom: 8px; }
+    .pricing-card .price { font-size: 36px; font-weight: 800; margin: 16px 0; }
+    .pricing-card .price small { font-size: 14px; font-weight: 400; color: var(--text-dim); }
+    .pricing-card ul { list-style: none; margin: 24px 0; text-align: left; }
+    .pricing-card ul li { padding: 6px 0; font-size: 14px; color: var(--text-dim); }
+    .pricing-card ul li::before { content: '✓'; color: var(--success); margin-right: 8px; font-weight: 700; }
+    footer {
+      text-align: center; padding: 40px; color: var(--text-dim);
+      font-size: 13px; border-top: 1px solid var(--border); margin-top: 60px;
+    }
+    .toast-container {
+      position: fixed; top: 80px; right: 24px; z-index: 1000;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 20px; font-size: 14px;
+      animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 8px;
+    }
+    .toast.success { border-color: var(--success); }
+    .toast.error { border-color: var(--error); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .usage-indicator {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-dim);
+    }
+    .usage-indicator .count { color: var(--accent-light); font-weight: 600; }
+    .lang-toggle {
+      display: flex; background: var(--surface2);
+      border-radius: 6px; overflow: hidden; border: 1px solid var(--border);
+    }
+    .lang-toggle button {
+      padding: 4px 12px; font-size: 12px; border: none;
+      background: transparent; color: var(--text-dim); cursor: pointer; transition: all 0.2s;
+    }
+    .lang-toggle button.active { background: var(--accent); color: white; }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 32px; }
+      .workspace { grid-template-columns: 1fr; }
+      .pricing-cards { grid-template-columns: 1fr; }
+      .hero .stats { flex-direction: column; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="inner">
+      <a href="/" class="logo"><span>⚡</span> ResumeForge<small>AI</small></a>
+      <div class="nav-actions">
+        <div class="lang-toggle">
+          <button class="active" onclick="setLang('zh')">中文</button>
+          <button onclick="setLang('en')">EN</button>
+        </div>
+        <div class="usage-indicator">今日剩余: <span class="count" id="usageCount">3</span> 次</div>
+      </div>
+    </div>
+  </nav>
+  <main>
+    <section class="hero">
+      <h1 id="heroTitle">AI 简历定制，秒级匹配</h1>
+      <p id="heroDesc">粘贴职位描述 + 你的简历，AI 精准重写，ATS 优化，面试通过率翻倍。无需注册，即刻使用。</p>
+      <div class="stats">
+        <div class="stat"><div class="num">10秒</div><div class="label">生成定制简历</div></div>
+        <div class="stat"><div class="num">ATS 95+</div><div class="label">系统兼容分数</div></div>
+        <div class="stat"><div class="num">3次免费</div><div class="label">每日免费额度</div></div>
+      </div>
+    </section>
+    <section class="workspace">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📋 <span id="jdLabel">职位描述 (JD)</span></h3>
+          <span class="badge" id="jdBadge">必填</span>
+        </div>
+        <div class="panel-body">
+          <textarea id="jdInput" placeholder="粘贴你要申请的职位描述...&#10;&#10;例如：&#10;职位：高级前端工程师&#10;要求：3年以上React经验，熟悉TypeScript..."></textarea>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📄 <span id="resumeLabel">你的简历</span></h3>
+          <span class="badge" id="resumeBadge">必填</span>
+        </div>
+        <div class="panel-body">
+          <textarea id="resumeInput" placeholder="粘贴你当前的简历内容...&#10;&#10;包括：工作经历、项目经验、技能、教育背景等"></textarea>
+        </div>
+      </div>
+    </section>
+    <div class="action-bar">
+      <button class="btn btn-secondary btn-large" onclick="fillExample()">💡 填入示例</button>
+      <button class="btn btn-primary btn-large" id="generateBtn" onclick="generateResume()">🚀 生成定制简历</button>
+    </div>
+    <div class="loading" id="loadingState">
+      <div class="spinner"></div>
+      <p id="loadingText">AI 正在分析职位要求，定制你的简历...</p>
+    </div>
+    <div class="result-area" id="resultArea">
+      <div class="result-toolbar">
+        <h3>✨ <span id="resultLabel">你的定制简历</span></h3>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" onclick="copyResult()">📋 复制</button>
+          <button class="btn btn-secondary" onclick="downloadResult()">⬇️ 下载</button>
+        </div>
+      </div>
+      <div class="result-content" id="resultContent"></div>
+    </div>
+    <section class="pricing">
+      <h2>简单透明的定价</h2>
+      <p>先用再买，3次免费体验</p>
+      <div class="pricing-cards">
+        <div class="pricing-card">
+          <h4>免费体验</h4>
+          <div class="price">$0<small>/天</small></div>
+          <ul>
+            <li>每天 3 次生成</li>
+            <li>基础 ATS 优化</li>
+            <li>中英文支持</li>
+            <li>无需注册</li>
+          </ul>
+          <button class="btn btn-secondary" style="width:100%">当前方案</button>
+        </div>
+        <div class="pricing-card featured">
+          <h4>专业版</h4>
+          <div class="price">$4.99<small>/月</small></div>
+          <ul>
+            <li>无限次生成</li>
+            <li>深度 ATS 优化</li>
+            <li>多版本管理</li>
+            <li>求职信生成</li>
+            <li>优先响应速度</li>
+          </ul>
+          <button class="btn btn-primary" style="width:100%">即将上线</button>
+        </div>
+        <div class="pricing-card">
+          <h4>按次付费</h4>
+          <div class="price">$0.99<small>/次</small></div>
+          <ul>
+            <li>单次购买</li>
+            <li>深度 ATS 优化</li>
+            <li>中英文支持</li>
+            <li>无需订阅</li>
+          </ul>
+          <button class="btn btn-secondary" style="width:100%">即将上线</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p>&copy; 2026 ResumeForge AI. Built with &hearts; for job seekers worldwide.</p>
+    <p style="margin-top:8px;">
+      <a href="mailto:support@resumeforge.ai" style="color:var(--accent-light)">联系我们</a>
+      &middot;
+      <a href="#" style="color:var(--accent-light)">隐私政策</a>
+      &middot;
+      <a href="#" style="color:var(--accent-light)">服务条款</a>
+    </p>
+  </footer>
+  <div class="toast-container" id="toastContainer"></div>
+  <script>
+    const state = { lang: 'zh', usageCount: 3, generating: false };
+
+    function setLang(lang) {
+      state.lang = lang;
+      document.querySelectorAll('.lang-toggle button').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      if (lang === 'en') {
+        document.getElementById('heroTitle').textContent = 'AI Resume Tailoring in Seconds';
+        document.getElementById('heroDesc').textContent = 'Paste the job description + your resume. AI rewrites and optimizes for ATS. Double your interview rate.';
+        document.getElementById('jdLabel').textContent = 'Job Description (JD)';
+        document.getElementById('resumeLabel').textContent = 'Your Resume';
+        document.getElementById('jdInput').placeholder = 'Paste the job description here...';
+        document.getElementById('resumeInput').placeholder = 'Paste your current resume...';
+      } else {
+        document.getElementById('heroTitle').textContent = 'AI 简历定制，秒级匹配';
+        document.getElementById('heroDesc').textContent = '粘贴职位描述 + 你的简历，AI 精准重写，ATS 优化，面试通过率翻倍。无需注册，即刻使用。';
+        document.getElementById('jdLabel').textContent = '职位描述 (JD)';
+        document.getElementById('resumeLabel').textContent = '你的简历';
+        document.getElementById('jdInput').placeholder = '粘贴你要申请的职位描述...';
+        document.getElementById('resumeInput').placeholder = '粘贴你当前的简历内容...';
+      }
+    }
+
+    function showToast(message, type) {
+      type = type || 'success';
+      var container = document.getElementById('toastContainer');
+      var toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.textContent = (type === 'success' ? '✓ ' : '✗ ') + message;
+      container.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 3000);
+    }
+
+    async function generateResume() {
+      var jd = document.getElementById('jdInput').value.trim();
+      var resume = document.getElementById('resumeInput').value.trim();
+      if (!jd || !resume) { showToast('请填写职位描述和简历', 'error'); return; }
+      if (state.usageCount <= 0) { showToast('今日免费额度已用完', 'error'); return; }
+      if (state.generating) return;
+      state.generating = true;
+      var btn = document.getElementById('generateBtn');
+      btn.disabled = true; btn.textContent = '⏳ 生成中...';
+      document.getElementById('loadingState').classList.add('active');
+      document.getElementById('resultArea').classList.remove('active');
+      try {
+        var response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ job_description: jd, resume: resume, lang: state.lang })
+        });
+        if (!response.ok) { var err = await response.json(); throw new Error(err.error || '生成失败'); }
+        var data = await response.json();
+        state.usageCount = (data.remaining !== undefined) ? data.remaining : state.usageCount - 1;
+        document.getElementById('usageCount').textContent = state.usageCount;
+        document.getElementById('resultContent').textContent = data.resume;
+        document.getElementById('resultArea').classList.add('active');
+        showToast('简历生成成功！');
+        document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        var today = new Date().toDateString();
+        localStorage.setItem('resumeforge_usage', JSON.stringify({ date: today, count: state.usageCount }));
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        state.generating = false;
+        btn.disabled = false; btn.textContent = '🚀 生成定制简历';
+        document.getElementById('loadingState').classList.remove('active');
+      }
+    }
+
+    function copyResult() {
+      var content = document.getElementById('resultContent').textContent;
+      navigator.clipboard.writeText(content).then(function() { showToast('已复制到剪贴板'); });
+    }
+
+    function downloadResult() {
+      var content = document.getElementById('resultContent').textContent;
+      var blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a'); a.href = url; a.download = 'tailored-resume.txt'; a.click();
+      URL.revokeObjectURL(url);
+      showToast('简历已下载');
+    }
+
+    function fillExample() {
+      if (state.lang === 'zh') {
+        document.getElementById('jdInput').value = '高级前端工程师 - 字节跳动\n\n岗位职责：\n1. 负责抖音电商核心业务的前端开发与性能优化\n2. 参与前端基础设施建设，推动工程化最佳实践\n3. 与产品、设计、后端紧密协作，高质量交付需求\n\n岗位要求：\n1. 本科及以上学历，3年以上前端开发经验\n2. 精通 React/Vue 等主流框架，熟悉 TypeScript\n3. 熟悉前端工程化工具链（Webpack/Vite/Rollup）\n4. 有大型 ToC 产品经验优先\n5. 有性能优化、SSR、微前端经验者优先';
+        document.getElementById('resumeInput').value = '张三 | 前端工程师 | 4年经验\n\n工作经历：\n美团 - 前端开发工程师 (2022.06 - 至今)\n- 负责外卖商家端 B 端后台开发，使用 React + TypeScript\n- 搭建组件库，统一 20+ 业务的 UI 规范\n- 页面加载性能优化，FCP 从 3.2s 降至 1.1s\n\n快手 - 前端开发实习生 (2021.03 - 2022.05)\n- 参与直播电商 C 端页面开发\n- 使用 Vue3 + Vite 搭建活动页脚手架\n\n技能：React, Vue, TypeScript, Webpack, Vite, Node.js\n\n教育：北京邮电大学 - 计算机科学与技术 - 本科 (2018-2022)';
+      } else {
+        document.getElementById('jdInput').value = 'Senior Frontend Engineer - Stripe\n\nBuild and maintain payment processing interfaces. React + TypeScript. 4+ years experience. Large-scale web apps.';
+        document.getElementById('resumeInput').value = 'John Doe | Frontend Engineer | 5 years\n\nShopify - Senior Frontend Developer (2022 - Present)\n- Built merchant dashboard for 500k+ merchants\n- Led migration from jQuery to React + TypeScript\n\nSkills: React, TypeScript, Next.js, GraphQL, Webpack\n\nEducation: University of Waterloo - Computer Science (2016-2020)';
+      }
+      showToast('示例已填入');
+    }
+
+    (function checkUsage() {
+      var today = new Date().toDateString();
+      var stored = localStorage.getItem('resumeforge_usage');
+      if (stored) {
+        var data = JSON.parse(stored);
+        if (data.date === today) { state.usageCount = data.count; }
+        else { state.usageCount = 3; localStorage.setItem('resumeforge_usage', JSON.stringify({ date: today, count: 3 })); }
+      } else {
+        localStorage.setItem('resumeforge_usage', JSON.stringify({ date: today, count: 3 }));
+      }
+      document.getElementById('usageCount').textContent = state.usageCount;
+    })();
+  </script>
+</body>
+</html>
