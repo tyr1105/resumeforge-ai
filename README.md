@@ -7,8 +7,14 @@
 [![No Backend](https://img.shields.io/badge/Architecture-Static%20SPA-orange?style=flat-square)]()
 [![Free](https://img.shields.io/badge/Free-3%2Fday-success?style=flat-square)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)]()
+[![SEO](https://img.shields.io/badge/SEO-Optimized-blueviolet?style=flat-square)]()
 
 ---
+
+## 📸 Screenshot
+
+<!-- Add a screenshot of the app here -->
+![ResumeForge AI Screenshot](https://tyr1105.github.io/resumeforge-ai/og-image.png)
 
 ## 🎯 What it does
 
@@ -29,6 +35,8 @@ ResumeForge AI takes your existing resume and a target job description, then use
 | 🌐 **Bilingual** | Full Chinese and English support |
 | 🌙 **Dark Theme** | Easy on the eyes, responsive design |
 | 🔓 **Open Source** | Fully auditable code, no hidden tracking |
+| 📋 **Copy & Download** | One-click copy to clipboard or download as text |
+| 💡 **Example Data** | Pre-filled examples to try instantly |
 
 ## 🚀 Quick Start
 
@@ -81,6 +89,10 @@ python3 -m http.server 8000
 - [ ] Resume scoring against JD
 - [ ] LinkedIn profile optimization
 - [ ] Interview question prep from JD
+
+## 🏷️ Keywords
+
+`AI resume builder` `ATS resume optimizer` `resume customization tool` `job application helper` `free resume generator` `DeepSeek resume` `AI resume tailoring` `ATS keyword matcher` `resume rewriter` `open source resume tool` `privacy-first resume` `bilingual resume builder` `Chinese English resume` `no signup resume tool`
 
 ## 🤝 Contributing
 

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tyr1105.github.io/resumeforge-ai/sitemap.xml
